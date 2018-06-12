@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cn.mao.newsssm.dao.BaseDao">
+	<insert id="add1" parameterType="User">
+		insert into user (uid,xm,pwd,bj,role ) values
+		(#{uid},#{xm},#{pwd},#{bj},#{role})
+	</insert>
+	<select id="get2" resultType="User">
+		select * from user
+		<where> uid=#{s1} and pwd=#{s2} </where>
+	</select>
+	<select id="countofUser" resultType="Long"> 
+		select count(*) from user  
+	</select>
+	<!-- =============新闻操作：增 =================== -->
+	<insert id="add2" parameterType="News"> 
+		insert into news (title,content,tjdate,cruser,hitnum ) values(#{title},#{content},#{tjdate},#{cruser},#{hitnum})  
+	</insert>
+	<!-- =============新闻操作：删 =================== -->
+	<delete id="delete">
+		 delete from news where id= #{id}    
+	</delete> 
+	<!-- =============新闻操作：改 =================== -->
+	<update id="update" parameterType="News"> 
+		update news set title=#{title},content=#{content},cruser=#{cruser},hitnum=#{hitnum} where id=#{id}  
+	</update>
+	<!-- =============新闻操作：查 =================== -->     <!-- resultType：适合使用返回值的数据类型是... -->
+	<select id="get1" resultType="News">
+		select * from news where id= #{id} 
+	</select>
+
+	<select id="list3" resultType="News"> 
+		select * from news order by id desc limit ${offset},${rows} 
+	</select>
+	<select id="list4" resultType="News">
+		select * from news
+		<where>title like '%${s1}%'   </where>
+		order by id desc limit ${offset},${rows}
+	</select>
+	<select id="countofNews" resultType="Long"> 
+		select count(*) from news  
+	</select>
+	<!-- =============菜单操作：查 ======================= -->
+	<select id="list2" resultType="Cmenu"> 
+		select * from cmenu where pid=${id}
+	</select>
+</mapper>

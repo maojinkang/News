@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context" xmlns:mvc="http://www.springframework.org/schema/mvc">
+
+
+	<context:property-placeholder location="classpath:db.properties" />
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+		destroy-method="close">
+		<!-- 配置数据库相关参数properties的属性 -->
+		<property name="driverClassName" value="${jdbc.driver}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+
+	<!-- spring和MyBatis完美整合，不需要mybatis的配置映射文 件 -->  <!-- 配置SqlSessionFactory对象 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 注入数据库连接池 -->
+		<property name="dataSource" ref="dataSource"/>
+		<!-- 配置MyBaties全局配置文件 -->
+		<property name="configLocation" value="classpath:mybatis-config.xml"/>
+		<!-- 扫描entity包,使用别名 -->
+		<property name="typeAliasesPackage" value="cn.mao.newsssm.entity"/>
+		<!-- 自动扫描sql配置文件:mapper需要的xml文件 -->
+		<property name="mapperLocations" value="classpath:mapper/*.xml"/>
+	</bean>
+
+	<!-- 配置扫描Dao接口包，动态实现Dao接口，注入到spring容器 中 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<!-- 注入sqlSessionFactory -->
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+		<!-- 给出需要扫描Dao接口包 -->
+		<property name="basePackage" value="cn.mao.newsssm.dao" />
+	</bean>
+
+	<!-- 扫描service包所有注解 @Service -->
+	<context:component-scan base-package="cn.mao.newsssm.service" />
+	<!-- 配置事务管理器, 把事务管理交由spring来完成 -->
+	<bean id="txManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<!-- 配置基于注解的声明式事务 -->
+	<tx:annotation-driven transaction-manager="txManager"/>
+	
+	
+	<context:component-scan base-package="cn.mao.newsssm.web" />
+	<!-- 开启RequestMapping 注解 -->
+	<mvc:annotation-driven/>
+	<!-- 启用静态资源默认Servlet配置 (1)加入对静态资源的处理：js,css,jpg,gif,png等 (2)允许使用"/"做整体映射 -->
+	<mvc:default-servlet-handler/>
+	<!-- 配置jsp视图解析器 -->
+	<bean class ="org.springframework.web.servlet.view.InternalResourceViewResolver" id="internalResourceViewResolver">     
+		<!-- 定义视图存放路径 -->
+		<property name="prefix" value="/WEB-INF/web/" />
+		<!-- 定义视图后缀 -->
+		<property name="suffix" value=".jsp" />
+	</bean>
+</beans>
